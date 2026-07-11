@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Settings - HealMate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: linear-gradient(to bottom,#f7f6ff,#f0eaff);
+}
+
+/* Main Layout */
+.settings-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: white;
+    padding: 30px 20px;
+    box-shadow: 5px 0 20px rgba(0,0,0,0.05);
+}
+
+.sidebar h2 {
+    color: #7c3aed;
+    margin-bottom: 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.sidebar ul li:hover {
+    background: #f0eaff;
+}
+
+.sidebar ul li.logout a {
+    color: #7c3aed;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Content Area */
+.content {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Logout Button */
+.logout-btn {
+    padding: 15px 30px;
+    border-radius: 25px;
+    background: linear-gradient(45deg,#a855f7,#6366f1);
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .settings-container{
+        flex-direction: column;
+    }
+
+    .sidebar{
+        width: 100%;
+        box-shadow: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="settings-container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Settings</h2>
+        <ul>
+            <li class="logout">
+                <a href="login.html">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <a href="login.html" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

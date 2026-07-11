@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Flexibility & Balance</title>
+
+<style>
+body {
+    font-family: Segoe UI;
+    margin: 0;
+    background: #eef7ff;
+}
+.header {
+    background: linear-gradient(120deg,#4ecdc4,#1a9f9a);
+    color: white;
+    padding: 20px;
+    font-size: 28px;
+    text-align: center;
+    font-weight: bold;
+}
+.page {
+    display: flex;
+    max-width: 1100px;
+    margin: auto;
+    gap: 20px;
+    padding: 20px;
+}
+.exercise-list {
+    width: 250px;
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+.exercise-item {
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    background: #e6fffb;
+    font-weight: 600;
+}
+.exercise-item:hover { background: #c9fff8; }
+.content {
+    flex: 1;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+.gif-area { text-align: center; }
+.gif-area video { width: 300px; border-radius: 10px; }
+.tabs { display: flex; gap: 10px; margin: 20px 0; }
+.tabs button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background: #dffefe;
+    font-weight: 600;
+}
+.tabs button.active { background: #1a9f9a; color: white; }
+.section { margin-bottom: 20px; }
+.section-title { color: #1a9f9a; font-weight: bold; margin-bottom: 6px; }
+.tags { display: flex; gap: 10px; flex-wrap: wrap; }
+.tag { background: #dffefe; padding: 6px 14px; border-radius: 20px; }
+.muscle-img { margin-top: 10px; text-align: center; }
+.muscle-img img { width: 180px; border-radius: 10px; }
+.reps { display: flex; gap: 10px; align-items: center; }
+.reps button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    background: #dffefe;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Flexibility & Balance</div>
+
+<div class="page">
+<div class="exercise-list">
+    <div class="exercise-item" onclick="loadExercise('yogastretch')">Child Pose</div>
+    <div class="exercise-item" onclick="loadExercise('hamstringstretch')">Cobra Stretch</div>
+</div>
+
+<div class="content">
+    <h2 id="exerciseTitle">Yoga Stretch</h2>
+
+    <div class="gif-area">
+        <video id="exerciseVideo" controls autoplay loop muted></video>
+    </div>
+
+    <div class="tabs">
+        <button id="animationBtn" class="active" onclick="showAnimation()">Animation</button>
+        <button id="muscleBtn" onclick="showMuscle()">Muscle</button>
+        <button onclick="openVideo()">How to do</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">REPS / TIME</div>
+        <div class="reps">
+            <button onclick="minus()">-</button>
+            <span id="reps">15</span>
+            <button onclick="plus()">+</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">INSTRUCTIONS</div>
+        <p id="instructions"></p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">FOCUS AREA</div>
+        <div class="tags" id="focusArea"></div>
+
+        <div class="muscle-img">
+            <img id="muscleImg" src="">
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">COMMON MISTAKES</div>
+        <p id="mistakes"></p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">BREATHING TIPS</div>
+        <p id="breathing"></p>
+    </div>
+</div>
+</div>
+
+<script>
+const exercises = {
+    yogastretch: {
+        title: "Child Pose",
+        videoFile: "ch1.mp4",
+        muscleVideo: "ch2.mp4",
+        focusImage: "ch3.jpeg",
+        video: "https://www.youtube.com/watch?v=v7AYKMP6rOE",
+        instructions: "Sit hips back to heels from kneeling and rest forehead on the mat with arms forward.",
+        focus: ["Back", "Lower Back"],
+        mistakes: "Lifting hips too high instead of resting toward the heels.",
+        breathing: "Slow deep breathing through the nose while relaxing the back body."
+    },
+    hamstringstretch: {
+        title: "Cobra Stretch",
+        videoFile: "c1.mp4",
+        muscleVideo: "c2.mp4",
+        focusImage: "c3.jpeg",
+        video: "https://www.youtube.com/watch?v=Z2TqB2jGKaI",
+        instructions: "From lying prone, press palms near shoulders and lift chest gently off the floor.",
+        focus: ["Hamstrings", "Abs", "Glutes"],
+        mistakes: "Locking elbows and over-compressing the lower back.",
+        breathing: "Inhale while lifting the chest and exhale slowly when lowering."
+    }
+};
+
+let currentExercise = "yogastretch";
+let reps = 15;
+let videoElem = document.getElementById("exerciseVideo");
+let animationBtn = document.getElementById("animationBtn");
+let muscleBtn = document.getElementById("muscleBtn");
+
+function loadExercise(name){
+    currentExercise = name;
+    let ex = exercises[name];
+    document.getElementById("exerciseTitle").innerText = ex.title;
+    document.getElementById("instructions").innerText = ex.instructions;
+    document.getElementById("mistakes").innerText = ex.mistakes;
+    document.getElementById("breathing").innerText = ex.breathing;
+    let focusHTML = "";
+    ex.focus.forEach(f => { focusHTML += `<div class="tag">${f}</div>` });
+    document.getElementById("focusArea").innerHTML = focusHTML;
+    document.getElementById("muscleImg").src = ex.focusImage;
+    document.getElementById("muscleImg").style.display = "block";
+    showAnimation();
+    setActiveTab('animation');
+}
+
+function showAnimation(){ 
+    let ex = exercises[currentExercise]; 
+    videoElem.src=ex.videoFile; 
+    videoElem.style.display="block"; 
+    setActiveTab('animation'); 
+}
+
+function showMuscle(){ 
+    let ex = exercises[currentExercise]; 
+    if(ex.muscleVideo){videoElem.src=ex.muscleVideo; videoElem.style.display="block";}
+    document.getElementById("muscleImg").style.display="block"; 
+    setActiveTab('muscle'); 
+}
+
+function openVideo(){ window.open(exercises[currentExercise].video,"_blank"); }
+
+function plus(){ reps++; document.getElementById("reps").innerText=reps; }
+
+function minus(){ if(reps>1) reps--; document.getElementById("reps").innerText=reps; }
+
+function setActiveTab(tab){ 
+    if(tab==='animation'){
+        animationBtn.classList.add('active'); 
+        muscleBtn.classList.remove('active');
+    } else{ 
+        muscleBtn.classList.add('active'); 
+        animationBtn.classList.remove('active');
+    } 
+}
+
+// Load default exercise
+loadExercise("yogastretch");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>HealMate - Login</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:hsl(317,43%,90%);
+}
+
+.container{
+width:900px;
+height:550px;
+background:white;
+display:flex;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+.left{
+width:50%;
+padding:40px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+.logo{
+font-weight:bold;
+margin-bottom:30px;
+}
+
+h2{
+margin-bottom:10px;
+}
+
+.subtitle{
+font-size:14px;
+color:gray;
+margin-bottom:20px;
+}
+
+form{
+display:flex;
+flex-direction:column;
+}
+
+label{
+font-size:14px;
+margin-bottom:5px;
+}
+
+input{
+padding:10px;
+margin-bottom:15px;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+.primary-btn{
+padding:10px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+margin-bottom:10px;
+}
+
+.primary-btn:hover{
+background:#1e40af;
+}
+
+.switch-text{
+margin-top:10px;
+font-size:14px;
+}
+
+.switch-text a{
+color:#2563eb;
+cursor:pointer;
+}
+
+.right{
+width:50%;
+background:url("splash.jpeg") no-repeat center/cover;
+}
+
+.hidden{
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="left">
+
+<div class="logo">HealMate</div>
+
+<!-- SIGNUP -->
+<div id="signupBox">
+<h2>Sign Up</h2>
+<p class="subtitle">Create your account</p>
+
+<form id="signupForm">
+<label>Name</label>
+<input type="text" id="name" required>
+
+<label>Email</label>
+<input type="email" id="signupEmail" required>
+
+<label>Password</label>
+<input type="password" id="signupPassword" required>
+
+<button type="submit" class="primary-btn">Create Account</button>
+</form>
+
+<p class="switch-text">
+Already have an account?
+<a onclick="showLogin()">Login</a>
+</p>
+</div>
+
+<!-- LOGIN -->
+<div id="loginBox" class="hidden">
+<h2>Login</h2>
+<p class="subtitle">Enter your details</p>
+
+<form id="loginForm">
+<label>Email</label>
+<input type="email" id="loginEmail" required>
+
+<label>Password</label>
+<input type="password" id="loginPassword" required>
+
+<button type="submit" class="primary-btn">Login</button>
+</form>
+
+<p class="switch-text">
+Don't have an account?
+<a onclick="showSignup()">Sign Up</a>
+</p>
+</div>
+
+</div>
+
+<div class="right"></div>
+
+</div>
+
+<script>
+
+// ============================
+// SUPABASE CONFIG
+// ============================
+const supabaseUrl = "https://aesjzhjfnkmxdvivjaqy.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlc2p6aGpmbmtteGR2aXZqYXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTU5MzUsImV4cCI6MjA4Njk5MTkzNX0.ttXhdM1XU_VVQPDdtDEumawzgXqlo-JQtbT1WUO7G1E";
+
+const { createClient } = supabase;
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+
+// ============================
+// SWITCH FORMS
+// ============================
+function showLogin(){
+document.getElementById("signupBox").classList.add("hidden");
+document.getElementById("loginBox").classList.remove("hidden");
+}
+
+function showSignup(){
+document.getElementById("loginBox").classList.add("hidden");
+document.getElementById("signupBox").classList.remove("hidden");
+}
+
+
+// ============================
+// SIGNUP
+// ============================
+document.getElementById("signupForm")
+.addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const nameValue = document.getElementById("name").value;
+const email = document.getElementById("signupEmail").value;
+const password = document.getElementById("signupPassword").value;
+
+const { error } = await supabaseClient.auth.signUp({
+email: email,
+password: password,
+options: {
+data: { full_name: nameValue }
+}
+});
+
+if(error){
+alert(error.message);
+}else{
+alert("Account Created Successfully!");
+showLogin();
+}
+});
+
+
+// ============================
+// LOGIN
+// ============================
+document.getElementById("loginForm")
+.addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const email = document.getElementById("loginEmail").value;
+const password = document.getElementById("loginPassword").value;
+
+const { error } = await supabaseClient.auth.signInWithPassword({
+email: email,
+password: password
+});
+
+if(error){
+alert(error.message);
+}else{
+alert("Login Successful!");
+window.location.href="home.html";
+}
+});
+
+</script>
+
+</body>
+</html>

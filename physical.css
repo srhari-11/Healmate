@@ -1,0 +1,142 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background: url("e.jpeg") no-repeat center center fixed;
+  background-size: cover;
+  padding: 40px 8%;
+}
+
+.overlay {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 32px;
+  padding: 30px 28px 36px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+}
+
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-title h1 {
+  font-size: 32px;
+  color: #1e293b;
+}
+
+.page-title span {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.tag {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  background: rgba(124, 58, 237, 0.08);
+  color: #7c3aed;
+}
+
+/* Container */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Top Row */
+.top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+}
+
+/* Bottom Row: 3 modules */
+.bottom-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* Card Styling */
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 22px 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #111827;
+  transition: transform 0.25s, box-shadow 0.25s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.2);
+}
+
+.card h1,
+.card h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 14px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chip {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.06);
+  color: #4f46e5;
+}
+
+.cta-pill {
+  margin-top: 14px;
+  align-self: flex-start;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  background: linear-gradient(45deg, #a855f7, #6366f1);
+  color: white;
+  border: none;
+}
+
+.bottom-card {
+  font-size: 15px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  body {
+    padding: 24px 16px;
+  }
+
+  .top-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bottom-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Health & Meditation Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="guided.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+</head>
+
+<body>
+
+<header>
+<h2>Health & Meditation Dashboard</h2>
+</header>
+
+<div class="container">
+
+<div class="cards">
+<div class="card" onclick="showSection('sleep')">Sleep</div>
+<div class="card" onclick="showSection('water')">Water</div>
+<div class="card" onclick="showSection('calorie')">Calories</div>
+</div>
+
+<!-- ================= SLEEP ================= -->
+
+<div id="sleep" class="section">
+
+<h3>Sleep Tracker</h3>
+
+<input type="date" id="sleepDate">
+<input type="number" id="sleepHours" placeholder="Hours slept">
+
+<button onclick="saveSleep()">Save</button>
+
+<div class="progress">
+<div id="sleepBar"></div>
+</div>
+
+<button onclick="toggleRecords('sleepList',this)">
+View Records
+</button>
+
+<ul id="sleepList" style="display:none;"></ul>
+
+<div class="chart-container">
+<canvas id="sleepChart"></canvas>
+</div>
+
+</div>
+
+<!-- ================= WATER ================= -->
+
+<div id="water" class="section">
+
+<h3>Water Tracker</h3>
+
+<input type="date" id="waterDate">
+<input type="number" id="waterAmount" placeholder="Litres drank">
+
+<button onclick="saveWater()">Save</button>
+
+<div class="progress">
+<div id="waterBar"></div>
+</div>
+
+<button onclick="toggleRecords('waterList',this)">
+View Records
+</button>
+
+<ul id="waterList" style="display:none;"></ul>
+
+<div class="chart-container">
+<canvas id="waterChart"></canvas>
+</div>
+
+</div>
+
+<!-- ================= CALORIES ================= -->
+
+<div id="calorie" class="section">
+
+<h3>Calorie Analysis</h3>
+
+<h4>Step 1: Calculate Recommended Goal</h4>
+
+<input type="number" id="weight" placeholder="Weight (kg)">
+<input type="number" id="height" placeholder="Height (cm)">
+<input type="number" id="age" placeholder="Age">
+
+<select id="activity">
+<option value="1.2">Low Activity</option>
+<option value="1.55">Moderate Activity</option>
+<option value="1.9">High Activity</option>
+</select>
+
+<button onclick="calculateGoal()">Calculate Goal</button>
+
+<h4 id="goalDisplay"></h4>
+
+<hr>
+
+<h4>Step 2: Enter Daily Intake</h4>
+
+<input type="date" id="calorieDate">
+<input type="number" id="dailyCalories" placeholder="Calories consumed">
+
+<button onclick="saveDailyCalories()">Save Daily</button>
+
+<div class="progress">
+<div id="calorieBar"></div>
+</div>
+
+<button onclick="toggleRecords('calorieList',this)">
+View Records
+</button>
+
+<ul id="calorieList" style="display:none;"></ul>
+
+<div class="chart-container">
+<canvas id="calorieChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+<script src="guided.js"></script>
+
+</body>
+</html>

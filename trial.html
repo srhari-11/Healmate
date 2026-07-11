@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Professional Chat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- CSS -->
+<style>
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #131324, #182d44);
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.chat-wrapper {
+  width: 750px;
+  height: 600px;
+  background: #fff;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #2563eb;
+  color: white;
+  padding: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  max-width: 65%;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.sent {
+  background: #2563eb;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
+}
+
+.received {
+  background: #e5e7eb;
+  color: black;
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  color: rgb(153, 148, 148);
+}
+
+.chat-footer {
+  display: flex;
+  padding: 12px 18px;
+  border-top: 1px solid #ddd;
+}
+
+.chat-footer input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.chat-footer button {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.chat-footer button:hover {
+  background: #1d4ed8;
+}
+</style>
+</head>
+<body>
+
+<div class="chat-wrapper">
+
+  <div class="chat-header">
+    <h3>Live Chat</h3>
+    <span class="status">● Online</span>
+  </div>
+
+  <div id="messages" class="chat-body"></div>
+
+  <div class="chat-footer">
+    <input type="text" id="username" placeholder="Your name">
+    <input type="text" id="message" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()">➤</button>
+  </div>
+
+</div>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = "https://aesjzhjfnkmxdvivjaqy.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlc2p6aGpmbmtteGR2aXZqYXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTU5MzUsImV4cCI6MjA4Njk5MTkzNX0.ttXhdM1XU_VVQPDdtDEumawzgXqlo-JQtbT1WUO7G1E";
+const { createClient } = supabase;
+const db = createClient(supabaseUrl, supabaseKey);
+
+const messagesDiv = document.getElementById("messages");
+
+// Add message to UI
+function addMessage(id, username, content) {
+  const currentUser = document.getElementById("username").value.trim();
+
+  const div = document.createElement("div");
+  div.classList.add("message");
+  div.setAttribute("data-id", id);
+
+  if (username === currentUser) {
+    div.classList.add("sent");
+  } else {
+    div.classList.add("received");
+  }
+
+  div.innerHTML = `<strong>${username}</strong><br>${content}`;
+
+  // Delete button only for your messages
+  if (username === currentUser) {
+    const btn = document.createElement("span");
+    btn.classList.add("delete-btn");
+    btn.textContent = "✖";
+    btn.addEventListener("click", () => deleteMessage(id));
+    div.prepend(btn);
+  }
+
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Send Message
+async function sendMessage() {
+  const username = document.getElementById("username").value.trim();
+  const content = document.getElementById("message").value.trim();
+  if (!username || !content) return;
+
+  const { error } = await db.from("chat_messages").insert([{ username, content }]);
+  if (error) console.error(error);
+
+  document.getElementById("message").value = "";
+}
+
+// Load Old Messages
+async function loadMessages() {
+  messagesDiv.innerHTML = "";
+
+  const { data, error } = await db
+    .from("chat_messages")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) return console.error(error);
+
+  data.forEach(msg => addMessage(msg.id, msg.username, msg.content));
+}
+
+loadMessages();
+
+// Delete Message
+async function deleteMessage(id) {
+  const { error } = await db.from("chat_messages").delete().eq("id", id);
+  if (error) return console.error(error);
+
+  document.querySelector(`[data-id='${id}']`)?.remove();
+}
+
+// Realtime Listener
+db.channel("chat-messages-channel")
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT",
+      schema: "public",
+      table: "chat_messages",
+    },
+    (payload) => {
+      addMessage(payload.new.id, payload.new.username, payload.new.content);
+    }
+  )
+  .on(
+    "postgres_changes",
+    {
+      event: "DELETE",
+      schema: "public",
+      table: "chat_messages",
+    },
+    (payload) => {
+      document.querySelector(`[data-id='${payload.old.id}']`)?.remove();
+    }
+  )
+  .subscribe();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<head>
+<meta charset="UTF-8">
+<title>Clickable Mood Calendar</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:#f3efe7;
+}
+
+.wrapper{
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+
+.box{
+    flex:1;
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    height:90vh;
+    overflow-y:auto;
+}
+
+.calendar{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:8px;
+    margin-top:15px;
+}
+
+.calendar div{
+    background:#eee;
+    border-radius:12px;
+    text-align:center;
+    padding:10px;
+    min-height:60px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.calendar div:hover{
+    background:#ddd;
+}
+
+.history-item{
+    background:#f6f6f6;
+    padding:10px;
+    border-radius:12px;
+    margin-bottom:10px;
+}
+
+.popup{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:white;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
+    width:300px;
+    display:none;
+    z-index:100;
+}
+
+.overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.4);
+    top:0;
+    left:0;
+    display:none;
+}
+
+.mood-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:10px 0;
+}
+
+.mood{
+    padding:10px;
+    background:#f0f0f0;
+    border-radius:10px;
+    text-align:center;
+    cursor:pointer;
+}
+
+.mood.selected{
+    background:black;
+    color:white;
+}
+
+textarea{
+    width:100%;
+    padding:8px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    margin-top:5px;
+}
+
+button{
+    margin-top:10px;
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:black;
+    color:white;
+    cursor:pointer;
+}
+
+/* Green Button (Same as Reset) */
+.green-btn{
+    background:#2cce7d;
+    color:white;
+}
+
+.green-btn:hover{
+    background:#25b96f;
+}
+
+#monthSelect, #yearSelect{
+    padding:8px 12px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    background:white;
+    font-weight:bold;
+}
+
+.reset-btn {
+    background:#2cce7d; 
+    color:white; 
+    border:none; 
+    border-radius:10px;
+    padding:10px;
+    cursor:pointer;
+    width:100%;
+    margin-bottom:10px;
+}
+
+/* Reminder */
+.add-reminder{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:15px;
+}
+
+.add-reminder input{
+    padding:8px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+
+.reminder-card{
+    background:#f6f6f6;
+    padding:10px;
+    border-radius:12px;
+    margin-bottom:10px;
+}
+
+.days-left{
+    font-weight:bold;
+}
+
+.delete-btn{
+    margin-top:5px;
+    padding:5px;
+    font-size:12px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#888;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<!-- LEFT -->
+<div class="box">
+    <h2 id="greeting"></h2>
+    <h3>Saved History</h3>
+    <button id="resetHistory" class="reset-btn">Reset History</button>
+    <div id="history"></div>
+</div>
+
+<!-- CENTER -->
+<div class="box">
+    <h2>My Calendar</h2>
+
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <select id="monthSelect"></select>
+        <select id="yearSelect"></select>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+</div>
+
+<!-- RIGHT -->
+<div class="box">
+    <h2>Reminders</h2>
+
+    <div class="add-reminder">
+        <input type="text" id="eventName" placeholder="Occasion name">
+        <input type="date" id="eventDate">
+        <button onclick="addReminder()" class="green-btn">Add Reminder</button>
+    </div>
+
+    <div id="reminderList"></div>
+</div>
+
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="popup" id="popup">
+    <h3 id="popupDate"></h3>
+
+    <div class="mood-grid">
+        <div class="mood" data-mood="Happy">😍</div>
+        <div class="mood" data-mood="Content">😊</div>
+        <div class="mood" data-mood="Neutral">😐</div>
+        <div class="mood" data-mood="Sad">😢</div>
+        <div class="mood" data-mood="Angry">😡</div>
+        <div class="mood" data-mood="Furious">🤬</div>
+    </div>
+
+    <textarea id="note" placeholder="Write your memory..."></textarea>
+
+    <button onclick="saveMood()">Save</button>
+    <button onclick="closePopup()" style="background:#888;margin-top:5px;">Cancel</button>
+</div>
+
+<script>
+
+/* Greeting */
+function setGreeting(){
+    let hour=new Date().getHours();
+    let g=document.getElementById("greeting");
+    if(hour<12) g.innerText="Good Morning!";
+    else if(hour<18) g.innerText="Good Afternoon!";
+    else g.innerText="Good Evening!";
+}
+setGreeting();
+
+let selectedDay=null;
+let selectedMood="";
+let today=new Date();
+let currentMonth=today.getMonth();
+let currentYear=today.getFullYear();
+
+const monthSelect=document.getElementById("monthSelect");
+const yearSelect=document.getElementById("yearSelect");
+const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+months.forEach((m,i)=>{
+    let option=document.createElement("option");
+    option.value=i;
+    option.text=m;
+    monthSelect.appendChild(option);
+});
+
+for(let y=2020;y<=2035;y++){
+    let option=document.createElement("option");
+    option.value=y;
+    option.text=y;
+    yearSelect.appendChild(option);
+}
+
+monthSelect.value=currentMonth;
+yearSelect.value=currentYear;
+
+monthSelect.onchange=function(){currentMonth=parseInt(this.value);loadCalendar();}
+yearSelect.onchange=function(){currentYear=parseInt(this.value);loadCalendar();}
+
+function loadCalendar(){
+    const cal=document.getElementById("calendar");
+    cal.innerHTML="";
+    let moodData=JSON.parse(localStorage.getItem("moodData"))||[];
+    let reminderData=JSON.parse(localStorage.getItem("reminderData"))||[];
+
+    let daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+
+    for(let i=1;i<=daysInMonth;i++){
+        let div=document.createElement("div");
+        div.innerHTML=`<strong>${i}</strong>`;
+
+        let moodFound=moodData.find(d=>d.day==i && d.month==currentMonth && d.year==currentYear);
+        if(moodFound){
+            let emoji=document.createElement("div");
+            emoji.innerText=getEmoji(moodFound.mood);
+            div.appendChild(emoji);
+        }
+
+        let reminderFound=reminderData.find(r=>{
+            let rd=new Date(r.date);
+            return rd.getDate()==i && rd.getMonth()==currentMonth && rd.getFullYear()==currentYear;
+        });
+
+        if(reminderFound){
+            div.style.border="2px solid black";
+        }
+
+        div.onclick=function(){openPopup(i);}
+        cal.appendChild(div);
+    }
+}
+
+function openPopup(day){
+    selectedDay=day;
+    selectedMood="";
+    document.getElementById("note").value="";
+    document.getElementById("popupDate").innerText=`${day}/${currentMonth+1}/${currentYear}`;
+    document.getElementById("popup").style.display="block";
+    document.getElementById("overlay").style.display="block";
+}
+
+function closePopup(){
+    document.getElementById("popup").style.display="none";
+    document.getElementById("overlay").style.display="none";
+}
+
+document.querySelectorAll(".mood").forEach(m=>{
+    m.onclick=function(){
+        document.querySelectorAll(".mood").forEach(x=>x.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedMood=this.dataset.mood;
+    }
+});
+
+function saveMood(){
+    if(!selectedMood){alert("Select mood");return;}
+    let data=JSON.parse(localStorage.getItem("moodData"))||[];
+    data.push({day:selectedDay,month:currentMonth,year:currentYear,mood:selectedMood,note:document.getElementById("note").value});
+    localStorage.setItem("moodData",JSON.stringify(data));
+    closePopup();
+    loadCalendar();
+    loadHistory();
+}
+
+function loadHistory(){
+    let history=document.getElementById("history");
+    history.innerHTML="";
+    let data=JSON.parse(localStorage.getItem("moodData"))||[];
+    data.slice().reverse().forEach(d=>{
+        let div=document.createElement("div");
+        div.className="history-item";
+        div.innerHTML=`${d.day}/${d.month+1}/${d.year}<br>${getEmoji(d.mood)} ${d.mood}<br>${d.note}`;
+        history.appendChild(div);
+    });
+}
+
+function getEmoji(mood){
+    switch(mood){
+        case "Happy":return "😍";
+        case "Content":return "😊";
+        case "Neutral":return "😐";
+        case "Sad":return "😢";
+        case "Angry":return "😡";
+        case "Furious":return "🤬";
+    }
+}
+
+document.getElementById("resetHistory").onclick=function(){
+    if(confirm("Delete all moods?")){
+        localStorage.removeItem("moodData");
+        loadCalendar();
+        loadHistory();
+    }
+};
+
+function addReminder(){
+    const name=document.getElementById("eventName").value;
+    const date=document.getElementById("eventDate").value;
+    if(!name||!date){alert("Fill all fields");return;}
+
+    let reminders=JSON.parse(localStorage.getItem("reminderData"))||[];
+    reminders.push({id:Date.now(),name:name,date:date});
+    localStorage.setItem("reminderData",JSON.stringify(reminders));
+
+    document.getElementById("eventName").value="";
+    document.getElementById("eventDate").value="";
+
+    loadReminders();
+    loadCalendar();
+}
+
+function deleteReminder(id){
+    let reminders=JSON.parse(localStorage.getItem("reminderData"))||[];
+    reminders=reminders.filter(r=>r.id!==id);
+    localStorage.setItem("reminderData",JSON.stringify(reminders));
+    loadReminders();
+    loadCalendar();
+}
+
+function loadReminders(){
+    const list=document.getElementById("reminderList");
+    list.innerHTML="";
+    let reminders=JSON.parse(localStorage.getItem("reminderData"))||[];
+    let today=new Date(); today.setHours(0,0,0,0);
+
+    reminders=reminders.filter(r=>{
+        let eventDate=new Date(r.date); eventDate.setHours(0,0,0,0);
+        return eventDate>=today;
+    });
+
+    localStorage.setItem("reminderData",JSON.stringify(reminders));
+
+    reminders.forEach(r=>{
+        let eventDate=new Date(r.date); eventDate.setHours(0,0,0,0);
+        let diffDays=Math.ceil((eventDate-today)/(1000*60*60*24));
+        let message=diffDays>0?diffDays+" Days Left":"Today 🎉";
+
+        let div=document.createElement("div");
+        div.className="reminder-card";
+        div.innerHTML=`<strong>${r.name}</strong><br>${r.date}<br>
+        <span class="days-left">${message}</span>
+        <button class="delete-btn" onclick="deleteReminder(${r.id})">Delete</button>`;
+        list.appendChild(div);
+    });
+}
+
+loadCalendar();
+loadHistory();
+loadReminders();
+
+</script>
+
+</body>
+</html>

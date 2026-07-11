@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>HealMate</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:#f4f1fb;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* sidebar */
+
+.sidebar{
+    width:240px;
+    background:#cbb6e6;
+    padding:25px;
+    color:#2c1b4a;
+}
+
+.sidebar h2{margin-top:0}
+
+.sidebar a{
+    display:block;
+    padding:10px;
+    margin:8px 0;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.sidebar a:hover{
+    background:#e7dbfb;
+}
+
+/* main */
+
+.main{
+    flex:1;
+    padding:30px;
+}
+
+/* card */
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom:20px;
+}
+
+/* doctor cards */
+
+.grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.expert{
+    width:220px;
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.1);
+    cursor:pointer;
+}
+
+.expert:hover{
+    background:#f2ebff;
+}
+
+/* form */
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+/* button */
+
+button{
+    margin-top:15px;
+    padding:10px 18px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(45deg,#a78bfa,#8b5cf6);
+    color:white;
+    cursor:pointer;
+}
+
+/* table */
+
+table{
+    width:100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* ensures columns are evenly spaced */
+}
+
+th, td{
+    padding:12px 10px;
+    border-bottom:1px solid #eee;
+    text-align:left;
+    word-wrap: break-word;
+    vertical-align: middle;
+}
+
+th{
+    background:#f2f2f2;
+    font-weight:600;
+}
+
+/* center status column */
+td:nth-child(4){
+    text-align:center;
+    font-weight:bold;
+}
+
+/* chat */
+
+.chatLayout{
+    display:flex;
+    gap:10px;
+}
+
+.users{
+    width:220px;
+    background:white;
+    padding:10px;
+    border-radius:10px;
+}
+
+.chatWindow{
+    flex:1;
+    background:white;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+}
+
+.chatHeader{
+    padding:10px;
+    border-bottom:1px solid #eee;
+    font-weight:bold;
+}
+
+.messages{
+    flex:1;
+    overflow-y:auto;
+    padding:10px;
+}
+
+.msg{
+    padding:8px;
+    border-radius:8px;
+    margin-bottom:6px;
+    max-width:70%;
+}
+
+.user{background:#ececec}
+.expertmsg{background:#e9ddff;margin-left:auto}
+
+.chatInput{
+    display:flex;
+    gap:6px;
+    padding:10px;
+}
+
+.chatInput input{flex:1}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="sidebar">
+
+<h2>HealMate</h2>
+
+<a onclick="showSection('browse')">Browse Doctors</a>
+<a onclick="showSection('appointment')">Book Appointment</a>
+<a onclick="showSection('myappointments')">My Appointments</a>
+<a onclick="showSection('chat')">Chat Dashboard</a>
+
+</div>
+
+<div class="main">
+
+<!-- BROWSE DOCTORS -->
+
+<div id="browse">
+
+<div class="card">
+<h2>Available Doctors</h2>
+<div id="expert-grid" class="grid"></div>
+</div>
+
+<div id="expert-details" class="card" style="display:none">
+
+<h2 id="exp-name"></h2>
+
+<p><b>Specialization:</b> <span id="exp-spec"></span></p>
+<p><b>Qualification:</b> <span id="exp-qual"></span></p>
+<p><b>Experience:</b> <span id="exp-exp"></span></p>
+<p><b>Contact:</b> <span id="exp-contact"></span></p>
+<p><b>Bio:</b> <span id="exp-bio"></span></p>
+
+</div>
+
+</div>
+
+<!-- BOOK APPOINTMENT -->
+
+<div id="appointment" style="display:none">
+
+<div class="card">
+
+<h2>Book Appointment</h2>
+
+<label>Select Doctor</label>
+<select id="doctor-select"></select>
+
+<label>Date</label>
+<input type="date" id="app-date">
+
+<label>Time</label>
+<input type="time" id="app-time">
+
+<label>Mode</label>
+
+<select id="app-mode">
+<option value="chat">Chat</option>
+<option value="voice">Voice</option>
+<option value="video">Video</option>
+</select>
+
+<button onclick="bookAppointment()">Book Appointment</button>
+
+</div>
+
+</div>
+
+<!-- MY APPOINTMENTS -->
+
+<div id="myappointments" style="display:none">
+
+<div class="card">
+
+<h2>My Appointments</h2>
+
+<table>
+
+<tr>
+<th>Doctor</th>
+<th>Date</th>
+<th>Time</th>
+<th>Status</th>
+</tr>
+
+<tbody id="appointments-table"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- CHAT -->
+
+<div id="chat" style="display:none">
+
+<div class="chatLayout">
+
+<div class="users">
+<h3>Doctors</h3>
+<div id="chat-users"></div>
+</div>
+
+<div class="chatWindow">
+
+<div class="chatHeader" id="chat-header">
+Select doctor to start chat
+</div>
+
+<div id="chat-messages" class="messages"></div>
+
+<div class="chatInput">
+<input id="chat-text" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+const SUPABASE_URL="https://aesjzhjfnkmxdvivjaqy.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlc2p6aGpmbmtteGR2aXZqYXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTU5MzUsImV4cCI6MjA4Njk5MTkzNX0.ttXhdM1XU_VVQPDdtDEumawzgXqlo-JQtbT1WUO7G1E"
+
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+
+let userId=null
+let experts=[]
+let selectedExpert=null
+
+function showSection(id){
+
+    document.getElementById("browse").style.display="none"
+    document.getElementById("appointment").style.display="none"
+    document.getElementById("myappointments").style.display="none"
+    document.getElementById("chat").style.display="none"
+
+    document.getElementById(id).style.display="block"
+
+    if(id==="myappointments") loadAppointments()
+    if(id==="chat") loadChatExperts()
+
+}
+
+/* init */
+
+async function init(){
+
+    const {data}=await supabaseClient.auth.getSession()
+
+    if(data.session){
+        userId=data.session.user.id
+    }
+
+    loadExperts()
+
+}
+
+/* load doctors */
+
+async function loadExperts(){
+
+    const {data}=await supabaseClient
+    .from("expert_profiles")
+    .select("*")
+    .eq("is_published",true)
+
+    experts=data || []
+
+    const grid=document.getElementById("expert-grid")
+    const select=document.getElementById("doctor-select")
+
+    grid.innerHTML=""
+    select.innerHTML=""
+
+    experts.forEach(e=>{
+
+        const div=document.createElement("div")
+
+        div.className="expert"
+
+        div.innerHTML=
+        "<h3>Dr. "+e.display_name+"</h3>"+
+        "<p>"+(e.specialization||"")+"</p>"+
+        "<small>"+(e.experience_years||0)+" years experience</small>"
+
+        div.onclick=()=>showDoctor(e)
+
+        grid.appendChild(div)
+
+        const opt=document.createElement("option")
+
+        opt.value=e.id
+        opt.text="Dr. "+e.display_name
+
+        select.appendChild(opt)
+
+    })
+
+}
+
+/* show doctor details */
+
+function showDoctor(e){
+
+    document.getElementById("expert-details").style.display="block"
+
+    document.getElementById("exp-name").innerText="Dr. "+e.display_name
+    document.getElementById("exp-spec").innerText=e.specialization || "-"
+    document.getElementById("exp-qual").innerText=e.qualification || "-"
+    document.getElementById("exp-exp").innerText=(e.experience_years || 0)+" years"
+    document.getElementById("exp-contact").innerText=e.contact || "-"
+    document.getElementById("exp-bio").innerText=e.bio || "-"
+
+}
+
+/* book appointment */
+
+async function bookAppointment(){
+
+    const expert=document.getElementById("doctor-select").value
+    const date=document.getElementById("app-date").value
+    const time=document.getElementById("app-time").value
+    const mode=document.getElementById("app-mode").value
+
+    await supabaseClient
+    .from("appointments")
+    .insert({
+        user_id:userId,
+        expert_id:expert,
+        date:date,
+        time:time,
+        mode:mode,
+        status:"pending"
+    })
+
+    alert("Appointment request sent")
+
+}
+
+/* load appointments */
+
+async function loadAppointments(){
+
+    const {data}=await supabaseClient
+    .from("appointments")
+    .select("*")
+    .eq("user_id",userId)
+
+    const table=document.getElementById("appointments-table")
+
+    table.innerHTML=""
+
+    for(const a of data){
+
+        const {data:doc}=await supabaseClient
+        .from("expert_profiles")
+        .select("display_name")
+        .eq("id",a.expert_id)
+        .single()
+
+        let color="orange"
+
+        if(a.status==="approved") color="green"
+        if(a.status==="rejected") color="red"
+
+        table.innerHTML+=`
+
+        <tr>
+        <td>Dr. ${doc?.display_name || ""}</td>
+        <td>${a.date}</td>
+        <td>${a.time}</td>
+        <td style="color:${color};">${a.status}</td>
+        </tr>
+
+        `
+    }
+
+}
+
+/* chat */
+
+function loadChatExperts(){
+
+    const list=document.getElementById("chat-users")
+
+    list.innerHTML=""
+
+    experts.forEach(e=>{
+
+        const div=document.createElement("div")
+
+        div.innerText="Dr. "+e.display_name
+        div.style.cursor="pointer"
+
+        div.onclick=()=>{
+            selectedExpert=e
+            document.getElementById("chat-header").innerText="Chat with Dr. "+e.display_name
+            loadMessages()
+        }
+
+        list.appendChild(div)
+
+    })
+
+}
+
+async function loadMessages(){
+
+    if(!selectedExpert) return
+
+    const {data}=await supabaseClient
+    .from("messages")
+    .select("*")
+    .eq("user_id",userId)
+    .eq("expert_id",selectedExpert.id)
+    .order("created_at",{ascending:true})
+
+    const box=document.getElementById("chat-messages")
+
+    box.innerHTML=""
+
+    data.forEach(m=>{
+
+        const div=document.createElement("div")
+
+        div.className="msg "+(m.sender==="expert"?"expertmsg":"user")
+
+        div.innerText=m.body
+
+        box.appendChild(div)
+
+    })
+
+}
+
+async function sendMessage(){
+
+    const text=document.getElementById("chat-text").value
+
+    if(!text || !selectedExpert) return
+
+    await supabaseClient
+    .from("messages")
+    .insert({
+        user_id:userId,
+        expert_id:selectedExpert.id,
+        sender:"user",
+        body:text
+    })
+
+    document.getElementById("chat-text").value=""
+
+    loadMessages()
+
+}
+
+init()
+
+</script>
+
+</body>
+</html>

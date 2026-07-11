@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mental Health Awareness</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(to right,#eef2ff,#f8f9ff);
+}
+
+/* Header */
+h1{
+    text-align:center;
+    padding:25px;
+    background:#6c63ff;
+    color:white;
+    margin:0;
+}
+
+/* Container */
+.container{
+    width:92%;
+    max-width:950px;
+    margin:30px auto;
+}
+
+/* Card */
+.box{
+    background:white;
+    margin:20px 0;
+    padding:22px;
+    border-radius:16px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.08);
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.box:hover{
+    transform:scale(1.02);
+}
+
+.box h2{
+    margin:0;
+    font-weight:600;
+}
+
+/* Expand animation */
+.content{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.6s ease;
+    margin-top:12px;
+    color:#444;
+    line-height:1.7;
+}
+
+.box.active .content{
+    max-height:2000px;
+}
+
+.label{
+    font-weight:bold;
+    margin-top:12px;
+    color:#333;
+}
+
+/* Colored borders */
+.depression{border-left:6px solid #6c5ce7;}
+.anxiety{border-left:6px solid #0984e3;}
+.stress{border-left:6px solid #e17055;}
+.bipolar{border-left:6px solid #d63031;}
+.confidence{border-left:6px solid #00b894;}
+.social{border-left:6px solid #6c5ce7;}
+.insomnia{border-left:6px solid #fdcb6e;}
+
+/* Footer */
+.footer{
+    text-align:center;
+    padding:30px;
+    font-size:14px;
+    color:#666;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🌿 Mental Health Awareness & Self-Care Guide</h1>
+
+<div class="container">
+
+<!-- 1 Depression -->
+<div class="box depression" onclick="toggleBox(this)">
+<h2>1️⃣ Depression</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Depression is a mood disorder that causes persistent sadness and loss of interest in daily activities. It affects emotions, thinking, and physical health.
+
+<p class="label">Symptoms:</p>
+• Persistent sadness or emptiness<br>
+• Loss of interest in hobbies<br>
+• Fatigue and low energy<br>
+• Sleep disturbances<br>
+• Appetite changes<br>
+• Feelings of hopelessness<br>
+• Difficulty concentrating<br>
+• Irritability<br>
+
+<p class="label">Remedies:</p>
+• Regular exercise<br>
+• Therapy or counseling<br>
+• Talking to trusted people<br>
+• Maintaining daily routine<br>
+• Healthy diet and sunlight exposure<br>
+
+</div>
+</div>
+
+<!-- 2 Anxiety -->
+<div class="box anxiety" onclick="toggleBox(this)">
+<h2>2️⃣ Anxiety Disorder</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Anxiety disorder involves excessive fear or worry that interferes with daily life.
+
+<p class="label">Symptoms:</p>
+• Constant worrying<br>
+• Rapid heartbeat<br>
+• Sweating or trembling<br>
+• Restlessness<br>
+• Muscle tension<br>
+• Panic attacks<br>
+
+<p class="label">Remedies:</p>
+• Deep breathing exercises<br>
+• Meditation and mindfulness<br>
+• Limiting caffeine<br>
+• Time management planning<br>
+• Cognitive Behavioral Therapy (CBT)<br>
+
+</div>
+</div>
+
+<!-- 3 Stress -->
+<div class="box stress" onclick="toggleBox(this)">
+<h2>3️⃣ Stress</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Stress is the body’s reaction to pressure or demanding situations. Long-term stress can impact physical and mental health.
+
+<p class="label">Symptoms:</p>
+• Headaches<br>
+• Muscle tension<br>
+• Irritability<br>
+• Difficulty focusing<br>
+• Sleep problems<br>
+
+<p class="label">Remedies:</p>
+• Proper rest<br>
+• Yoga or stretching<br>
+• Listening to calming music<br>
+• Spending time in nature<br>
+• Taking short breaks<br>
+
+</div>
+</div>
+
+<!-- 4 Bipolar -->
+<div class="box bipolar" onclick="toggleBox(this)">
+<h2>4️⃣ Bipolar Disorder</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Bipolar disorder causes extreme mood swings between emotional highs (mania) and lows (depression).
+
+<p class="label">Symptoms:</p>
+• Extreme mood changes<br>
+• High-energy periods<br>
+• Impulsive behavior<br>
+• Depressive episodes<br>
+• Sleep pattern changes<br>
+
+<p class="label">Remedies:</p>
+• Medical treatment<br>
+• Mood stabilizers (if prescribed)<br>
+• Therapy and counseling<br>
+• Regular sleep schedule<br>
+
+</div>
+</div>
+
+<!-- 5 Low Self Confidence -->
+<div class="box confidence" onclick="toggleBox(this)">
+<h2>5️⃣ Low Self-Confidence</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Low self-confidence involves doubting your abilities and feeling unsure about your self-worth.
+
+<p class="label">Symptoms:</p>
+• Fear of failure<br>
+• Negative self-talk<br>
+• Avoiding opportunities<br>
+• Comparing yourself to others<br>
+• Overthinking mistakes<br>
+
+<p class="label">Remedies:</p>
+• Positive affirmations<br>
+• Setting small achievable goals<br>
+• Skill-building practice<br>
+• Self-care routines<br>
+• Celebrating small achievements<br>
+
+</div>
+</div>
+
+<!-- 6 Social Anxiety -->
+<div class="box social" onclick="toggleBox(this)">
+<h2>6️⃣ Social Anxiety Disorder</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Social anxiety disorder is an intense fear of social situations where a person feels judged or embarrassed.
+
+<p class="label">Symptoms:</p>
+• Avoiding social interactions<br>
+• Blushing or sweating in public<br>
+• Fear of being judged<br>
+• Rapid heartbeat<br>
+• Low confidence<br>
+
+<p class="label">Remedies:</p>
+• Gradual exposure therapy<br>
+• Social skills training<br>
+• Relaxation techniques<br>
+• Counseling<br>
+
+</div>
+</div>
+
+<!-- 7 Insomnia -->
+<div class="box insomnia" onclick="toggleBox(this)">
+<h2>7️⃣ Insomnia</h2>
+<div class="content">
+
+<p class="label">Description:</p>
+Insomnia is a sleep disorder that makes it difficult to fall asleep or stay asleep.
+
+<p class="label">Symptoms:</p>
+• Difficulty falling asleep<br>
+• Frequent waking at night<br>
+• Daytime fatigue<br>
+• Irritability<br>
+• Poor concentration<br>
+
+<p class="label">Remedies:</p>
+• Maintain fixed sleep schedule<br>
+• Avoid screens before bed<br>
+• Reduce caffeine intake<br>
+• Create calm sleep environment<br>
+• Relaxation exercises<br>
+
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+If symptoms are severe or persistent, please consult a qualified mental health professional.
+</div>
+
+<script>
+function toggleBox(element){
+    element.classList.toggle("active");
+}
+</script>
+
+</body>
+</html>

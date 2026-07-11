@@ -1,0 +1,31 @@
+.meditation-container {
+    text-align: center;
+    padding: 50px;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    height: 100vh;
+}
+
+.breathing-circle {
+    width: 150px;
+    height: 150px;
+    margin: 40px auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, #6dd5ed, #2193b0);
+    animation: breathe 6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+.back-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background-color: #2193b0;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}

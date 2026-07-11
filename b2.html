@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Posture Correction Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ede9fe, #f5f3ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .main-box {
+      width: 95%;
+      max-width: 1150px;
+      background: white;
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 25px 50px rgba(139, 92, 246, 0.15);
+    }
+
+    h1 {
+      text-align: center;
+      color: #6d28d9;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7c7c9e;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .posture-selector {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 35px;
+    }
+
+    .selector-btn {
+      padding: 10px 18px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      background: #f3f0ff;
+      color: #5b21b6;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .selector-btn.active {
+      background: #8b5cf6;
+      color: white;
+      box-shadow: 0 8px 18px rgba(139,92,246,0.3);
+    }
+
+    .content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-section {
+      flex: 1;
+      min-width: 300px;
+      text-align: center;
+    }
+
+    .image-section img {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(139,92,246,0.15);
+    }
+
+    .details {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .card {
+      background: #faf9ff;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 20px rgba(139,92,246,0.08);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .good h3 { color: #16a34a; }
+    .bad h3 { color: #dc2626; }
+    .exercise h3 { color: #6d28d9; }
+
+    ul {
+      padding-left: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .info-box {
+      background: #f3f0ff;
+      padding: 15px;
+      border-radius: 15px;
+      font-size: 13px;
+      color: #5b21b6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-box">
+
+  <h1>🧘 Posture Correction Guide</h1>
+  <div class="subtitle">Maintain spinal alignment and strengthen support muscles</div>
+
+  <div class="posture-selector">
+    <button class="selector-btn active" onclick="changePosture('sitting', this)">Sitting</button>
+    <button class="selector-btn" onclick="changePosture('standing', this)">Standing</button>
+    <button class="selector-btn" onclick="changePosture('exercise', this)">Exercises</button>
+  </div>
+
+  <div class="content">
+    <div class="image-section">
+      <img id="postureImage" src="https://i.imgur.com/YQJ5ZKq.png">
+    </div>
+
+    <div class="details" id="detailsSection"></div>
+  </div>
+
+</div>
+
+<script>
+
+function changePosture(type, button) {
+
+  document.querySelectorAll(".selector-btn").forEach(btn => btn.classList.remove("active"));
+  button.classList.add("active");
+
+  const img = document.getElementById("postureImage");
+  const details = document.getElementById("detailsSection");
+
+  if(type === "sitting") {
+    img.src = "sit.jpeg";
+    details.innerHTML = `
+      <div class="card good">
+        <h3>✅ Correct Sitting</h3>
+        <ul>
+          <li>Back straight and supported.</li>
+          <li>Feet flat on floor.</li>
+          <li>Elbows at 90°.</li>
+          <li>Screen at eye level.</li>
+        </ul>
+      </div>
+      <div class="card bad">
+        <h3>❌ Wrong Sitting</h3>
+        <ul>
+          <li>Slouching forward.</li>
+          <li>Rounded shoulders.</li>
+          <li>Neck bending down.</li>
+        </ul>
+      </div>
+    `;
+  }
+
+  if(type === "standing") {
+    img.src = "stand1.jpeg";
+    details.innerHTML = `
+      <div class="card good">
+        <h3>✅ Correct Standing</h3>
+        <ul>
+          <li>Head aligned with spine.</li>
+          <li>Shoulders relaxed.</li>
+          <li>Weight evenly distributed.</li>
+        </ul>
+      </div>
+      <div class="card bad">
+        <h3>❌ Wrong Standing</h3>
+        <ul>
+          <li>Locked knees.</li>
+          <li>Forward head posture.</li>
+          <li>Slouched back.</li>
+        </ul>
+      </div>
+    `;
+  }
+
+  if(type === "exercise") {
+    img.src = "st2.jpeg";
+    details.innerHTML = `
+      <div class="card exercise">
+        <h3>🧘 Chin Tucks</h3>
+        <ul>
+          <li>Pull chin backward gently.</li>
+          <li>Hold 5 seconds.</li>
+          <li>Repeat 10 times.</li>
+        </ul>
+      </div>
+      <div class="card exercise">
+        <h3>💪 Wall Angels</h3>
+        <ul>
+          <li>Stand against wall.</li>
+          <li>Slide arms upward slowly.</li>
+          <li>Repeat 10–15 times.</li>
+        </ul>
+      </div>
+      <div class="card exercise">
+        <h3>🏋️ Plank</h3>
+        <ul>
+          <li>Keep body straight.</li>
+          <li>Hold 20–60 seconds.</li>
+          <li>Repeat 3 times.</li>
+        </ul>
+      </div>
+    `;
+  }
+}
+
+changePosture("sitting", document.querySelector(".selector-btn"));
+
+</script>
+
+</body>
+</html>

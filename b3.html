@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Breath Hold Tester</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ede9fe, #f8f7ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      width: 450px;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+      text-align: center;
+    }
+
+    h2 {
+      color: #6d28d9;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    p {
+      color: #7c7c9e;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .circle-wrapper {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      margin: auto;
+    }
+
+    svg {
+      width: 240px;
+      height: 240px;
+      transform: rotate(-90deg);
+    }
+
+    .bg-ring {
+      fill: none;
+      stroke: #e9e5ff;
+      stroke-width: 12;
+    }
+
+    .progress-ring {
+      fill: none;
+      stroke: #a78bfa;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke 0.3s ease;
+    }
+
+    .circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #c4b5fd, #8b5cf6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 42px;
+      font-weight: 600;
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.35);
+      transition: box-shadow 0.3s ease;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 25px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      margin: 10px;
+      transition: 0.3s;
+      font-weight: 500;
+    }
+
+    .start {
+      background: #a78bfa;
+      color: white;
+    }
+
+    .start:hover {
+      background: #8b5cf6;
+    }
+
+    .stop {
+      background: #f1f1ff;
+      color: #6d28d9;
+    }
+
+    .stop:hover {
+      background: #e5e2ff;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: 500;
+      font-size: 14px;
+      color: #4c1d95;
+      min-height: 24px;
+    }
+
+    /* Capacity Section */
+
+    .capacity-section {
+      margin-top: 25px;
+      text-align: left;
+    }
+
+    .capacity-section h3 {
+      font-size: 14px;
+      color: #6d28d9;
+      margin-bottom: 8px;
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #7c7c9e;
+      margin-bottom: 5px;
+    }
+
+    .bar {
+      position: relative;
+      height: 10px;
+      background: #e9e5ff;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #c4b5fd, #8b5cf6);
+      border-radius: 20px;
+      transition: width 0.2s linear;
+    }
+
+    .indicator {
+      position: absolute;
+      top: -6px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border: 3px solid #8b5cf6;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      left: 0%;
+      transition: left 0.2s linear;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🫁 Breath Hold Test</h2>
+  <p>Take a deep breath and hold as long as possible.</p>
+
+  <div class="circle-wrapper">
+    <svg>
+      <circle class="bg-ring" cx="120" cy="120" r="100"/>
+      <circle class="progress-ring" id="progressRing" cx="120" cy="120" r="100"/>
+    </svg>
+    <div class="circle" id="timer">0.0</div>
+  </div>
+
+  <button class="start" onclick="startTest()">Start</button>
+  <button class="stop" onclick="stopTest()">Stop</button>
+
+  <div id="result"></div>
+
+  <div class="capacity-section">
+    <h3>Vital Capacity Level</h3>
+
+    <div class="labels">
+      <span>Low</span>
+      <span>Average</span>
+      <span>Good</span>
+      <span>Excellent</span>
+    </div>
+
+    <div class="bar">
+      <div class="progress-bar" id="capacityBar"></div>
+      <div class="indicator" id="indicator"></div>
+    </div>
+  </div>
+
+</div>
+<script>
+const ring = document.getElementById("progressRing");
+const timerDisplay = document.getElementById("timer");
+const circle = document.querySelector(".circle");
+const capacityBar = document.getElementById("capacityBar");
+const indicator = document.getElementById("indicator");
+
+const radius = 100;
+const circumference = 2 * Math.PI * radius;
+
+ring.style.strokeDasharray = circumference;
+ring.style.strokeDashoffset = circumference;
+
+let startTime;
+let animationFrame;
+let running = false;
+
+function startTest() {
+  running = true;
+  document.getElementById("result").innerText = "";
+  capacityBar.style.width = "0%";
+  indicator.style.left = "0%";
+  ring.style.strokeDashoffset = circumference;
+  circle.style.boxShadow = "0 0 40px rgba(139, 92, 246, 0.35)";
+  startTime = performance.now();
+  animate();
+}
+
+function animate() {
+  if (!running) return;
+
+  let now = performance.now();
+  let elapsed = (now - startTime) / 1000;
+
+  timerDisplay.innerText = elapsed.toFixed(1);
+
+  /* Smooth circular animation */
+  let progress = (elapsed % 12) / 12;
+  let offset = circumference - progress * circumference;
+  ring.style.strokeDashoffset = offset;
+
+  /* -------- ACCURATE PIECEWISE SCALING -------- */
+  let percentage = 0;
+
+  if (elapsed < 20) {
+    percentage = (elapsed / 20) * 20;
+  } 
+  else if (elapsed < 35) {
+    percentage = 20 + ((elapsed - 20) / 15) * 20;
+  } 
+  else if (elapsed < 50) {
+    percentage = 40 + ((elapsed - 35) / 15) * 20;
+  } 
+  else if (elapsed < 70) {
+    percentage = 60 + ((elapsed - 50) / 20) * 20;
+  } 
+  else if (elapsed < 90) {
+    percentage = 80 + ((elapsed - 70) / 20) * 20;
+  } 
+  else {
+    percentage = 100;
+  }
+
+  capacityBar.style.width = percentage + "%";
+  indicator.style.left = percentage + "%";
+
+  animationFrame = requestAnimationFrame(animate);
+}
+
+function stopTest() {
+  running = false;
+  cancelAnimationFrame(animationFrame);
+
+  let finalTime = parseFloat(timerDisplay.innerText);
+  let message = "";
+
+  if (finalTime < 20) {
+    message = "Reduced breath endurance.";
+  } 
+  else if (finalTime < 35) {
+    message = "Lower normal range.";
+  } 
+  else if (finalTime < 50) {
+    message = "Normal healthy range.";
+  } 
+  else if (finalTime < 70) {
+    message = "Good lung endurance.";
+  } 
+  else if (finalTime < 90) {
+    message = "Very good respiratory strength!";
+  } 
+  else {
+    message = "Excellent respiratory capacity!";
+  }
+
+  document.getElementById("result").innerText =
+    "You held for " + finalTime + " seconds. " + message;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+/* ===== ABOUT PAGE ===== */
+
+.about-section {
+    min-height: 100vh;
+    padding: 120px 10%;
+    background: #f9f9ff;
+}
+
+.about-content h1 {
+    font-size: 40px;
+    margin-bottom: 20px;
+}
+
+.about-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 700px;
+}
+
+.about-boxes {
+    margin-top: 50px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    flex: 1;
+    min-width: 250px;
+    transition: 0.3s;
+}
+
+.box:hover {
+    transform: translateY(-5px);
+}

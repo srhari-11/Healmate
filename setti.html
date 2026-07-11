@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+body{
+    background:linear-gradient(to bottom,#f7f6ff,#f0eaff);
+}
+
+/* Main Layout */
+.settings-container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* Sidebar */
+.sidebar{
+    width:250px;
+    background:white;
+    padding:30px 20px;
+    box-shadow:5px 0 20px rgba(0,0,0,0.05);
+}
+
+.sidebar h2{
+    color:#7c3aed;
+    margin-bottom:30px;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar ul li{
+    padding:15px;
+    margin-bottom:10px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    transition:0.3s;
+}
+
+.sidebar ul li:hover{
+    background:#f0eaff;
+}
+
+.sidebar ul li.active{
+    background:linear-gradient(45deg,#a855f7,#6366f1);
+    color:white;
+}
+
+/* If your list items have a bottom border, remove it only for Logout */
+.sidebar ul li.logout {
+    border-bottom: none;
+}
+
+
+
+/* Content Area */
+.content{
+    flex:1;
+    padding:40px;
+}
+
+.section{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom:30px;
+}
+
+.section h3{
+    margin-bottom:20px;
+}
+
+.section label{
+    display:block;
+    margin:10px 0 5px;
+}
+
+.section input,
+.section textarea{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    margin-bottom:15px;
+}
+
+.section textarea{
+    height:100px;
+    resize:none;
+}
+
+.save-btn{
+    padding:10px 25px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(45deg,#a855f7,#6366f1);
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.save-btn:hover{
+    transform:scale(1.05);
+}
+
+/* Remove underline */
+.sidebar a {
+    text-decoration: none;
+}
+
+
+/* Profile section */
+.profile-message {
+    color: #666;
+    padding: 10px 0;
+}
+.profile-message a {
+    color: #7c3aed;
+    text-decoration: none;
+}
+.profile-message a:hover {
+    text-decoration: underline;
+}
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.profile-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.profile-row:last-of-type {
+    border-bottom: none;
+}
+.profile-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 100px;
+}
+.profile-value {
+    color: #333;
+}
+.edit-profile-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #a855f7, #6366f1);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+.edit-profile-link:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .settings-container{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        box-shadow:none;
+    }
+}
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <title>Settings - HealMate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<body>
+
+<div class="settings-container">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+        <h2>Settings</h2>
+
+        <ul>
+            <li class="active" onclick="showSection('profile', this)">
+                <i class="fa-solid fa-user"></i> Profile
+            </li>
+
+            <li onclick="showSection('feedback', this)">
+                <i class="fa-solid fa-comment-dots"></i> Feedback
+            </li>
+
+            <li class="logout">
+                <a href="login.html" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="content">
+
+        <!-- PROFILE SECTION -->
+        <div id="profile" class="section" style="display:block;">
+            <h3>Profile</h3>
+            <div id="profileLoading" class="profile-message">Loading profile...</div>
+            <div id="profileError" class="profile-message" style="display:none;">Please log in to see your profile. <a href="login.html">Log in</a></div>
+            <div id="profileEmpty" class="profile-message" style="display:none;">No profile yet. <a href="profile.html">Create your profile</a></div>
+            <div id="profileContent" class="profile-details" style="display:none;">
+                <div class="profile-row"><span class="profile-label">Name</span><span id="profileName" class="profile-value"></span></div>
+                <div class="profile-row"><span class="profile-label">Age</span><span id="profileAge" class="profile-value"></span></div>
+                <div class="profile-row"><span class="profile-label">Gender</span><span id="profileGender" class="profile-value"></span></div>
+                <div class="profile-row"><span class="profile-label">Height</span><span id="profileHeight" class="profile-value"></span></div>
+                <div class="profile-row"><span class="profile-label">Weight</span><span id="profileWeight" class="profile-value"></span></div>
+                <div class="profile-row"><span class="profile-label">Phone</span><span id="profilePhone" class="profile-value"></span></div>
+                <div id="profileSymptomsWrap" class="profile-row" style="display:none;"><span class="profile-label">Concerns</span><span id="profileSymptoms" class="profile-value"></span></div>
+                <a href="profile.html" class="edit-profile-link">Edit profile</a>
+            </div>
+        </div>
+
+        <!-- FEEDBACK SECTION -->
+        <div id="feedback" class="section" style="display:none;">
+            <h3>Send Feedback</h3>
+
+            <textarea id="feedbackText" placeholder="Write your feedback here..."></textarea>
+            <button id="feedbackButton" class="save-btn">Submit Feedback</button>
+            <div id="feedbackStatus" class="profile-message" style="display:none;"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const supabase = window.supabaseClient || (typeof supabaseClient !== 'undefined' ? supabaseClient : null);
+
+function showSection(sectionId, element){
+    document.querySelectorAll(".section").forEach(section=>{
+        section.style.display = "none";
+    });
+    document.querySelectorAll(".sidebar ul li").forEach(item=>{
+        item.classList.remove("active");
+    });
+    document.getElementById(sectionId).style.display = "block";
+    element.classList.add("active");
+}
+
+function renderProfile(profile) {
+    const contentEl = document.getElementById("profileContent");
+
+    document.getElementById("profileName").textContent = profile.name || "—";
+    document.getElementById("profileAge").textContent = profile.age != null ? profile.age : "—";
+    document.getElementById("profileGender").textContent = profile.gender || "—";
+    document.getElementById("profileHeight").textContent = profile.height != null ? profile.height + " cm" : "—";
+    document.getElementById("profileWeight").textContent = profile.weight != null ? profile.weight + " kg" : "—";
+    document.getElementById("profilePhone").textContent = profile.phone || "—";
+
+    let symptoms = profile.symptoms;
+    if (typeof symptoms === "string") {
+        try {
+            const parsed = JSON.parse(symptoms);
+            if (Array.isArray(parsed)) symptoms = parsed;
+        } catch (_) {
+            symptoms = symptoms.split(",").map(s => s.trim()).filter(Boolean);
+        }
+    }
+
+    if (symptoms && Array.isArray(symptoms) && symptoms.length > 0) {
+        const labels = {
+            stress: "Stress",
+            anxiety: "Anxiety",
+            depression: "Depression",
+            sleep: "Sleep",
+            low_energy: "Low Energy",
+            panic: "Panic",
+            grief: "Grief",
+            loneliness: "Loneliness"
+        };
+        document.getElementById("profileSymptoms").textContent =
+            symptoms.map(s => labels[s] || s).join(", ");
+        document.getElementById("profileSymptomsWrap").style.display = "flex";
+    }
+
+    contentEl.style.display = "block";
+}
+
+async function loadProfile(){
+    const loadingEl = document.getElementById("profileLoading");
+    const errorEl = document.getElementById("profileError");
+    const emptyEl = document.getElementById("profileEmpty");
+
+    const sessionProfileRaw = sessionStorage.getItem("healMateProfile");
+    const tryRenderSessionProfile = () => {
+        if (!sessionProfileRaw) return false;
+        try {
+            const p = JSON.parse(sessionProfileRaw);
+            renderProfile(p);
+            return true;
+        } catch (e) {
+            console.error("Session profile parse error:", e);
+            return false;
+        }
+    };
+
+    if (!supabase) {
+        loadingEl.style.display = "none";
+        if (!tryRenderSessionProfile()) {
+            errorEl.style.display = "block";
+        }
+        return;
+    }
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            loadingEl.style.display = "none";
+            if (!tryRenderSessionProfile()) {
+                errorEl.style.display = "block";
+            }
+            return;
+        }
+
+        const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        loadingEl.style.display = "none";
+
+        if (error) {
+            console.error("Profile load error:", error);
+            if (!tryRenderSessionProfile()) {
+                errorEl.textContent = "Could not load profile. Please try again.";
+                errorEl.style.display = "block";
+            }
+            return;
+        }
+
+        if (!profile) {
+            if (!tryRenderSessionProfile()) {
+                emptyEl.style.display = "block";
+            }
+            return;
+        }
+
+        renderProfile(profile);
+    } catch (e) {
+        console.error(e);
+        loadingEl.style.display = "none";
+        if (!tryRenderSessionProfile()) {
+            errorEl.textContent = "Something went wrong. Please try again.";
+            errorEl.style.display = "block";
+        }
+    }
+}
+
+async function submitFeedback() {
+    const textarea = document.getElementById("feedbackText");
+    const statusEl = document.getElementById("feedbackStatus");
+    if (!textarea || !statusEl) return;
+
+    const message = textarea.value.trim();
+    if (!message) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "red";
+        statusEl.textContent = "Please write some feedback before submitting.";
+        return;
+    }
+
+    statusEl.style.display = "block";
+    statusEl.style.color = "#555";
+    statusEl.textContent = "Sending your feedback...";
+
+    try {
+        let userId = null;
+        if (supabase) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) userId = user.id;
+        }
+
+        if (supabase) {
+            const { error } = await supabase
+                .from("feedback")
+                .insert({ user_id: userId, message });
+            if (error) throw error;
+        } else {
+            const local = JSON.parse(localStorage.getItem("healMateFeedback") || "[]");
+            local.push({ message, created_at: new Date().toISOString(), user_id: userId });
+            localStorage.setItem("healMateFeedback", JSON.stringify(local));
+        }
+
+        textarea.value = "";
+        statusEl.style.color = "green";
+        statusEl.textContent = "Thank you for your feedback!";
+    } catch (e) {
+        console.error("Feedback error:", e);
+        statusEl.style.color = "red";
+        statusEl.textContent = "Could not send feedback. Please try again.";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadProfile();
+    const feedbackBtn = document.getElementById("feedbackButton");
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener("click", submitFeedback);
+    }
+});
+</script>
+
+</body>
+</html>

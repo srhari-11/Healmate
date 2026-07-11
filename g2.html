@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Manifestation Page</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: url("e.jpeg") no-repeat center center fixed;
+    background-size: cover;
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 16px;
+}
+
+.page {
+    width: 900px;
+    max-width: 100%;
+    background: rgba(255,255,255,0.95);
+    border-radius: 28px;
+    box-shadow: 0 20px 45px rgba(15,23,42,0.28);
+    padding-bottom: 20px;
+}
+
+.header {
+    padding: 20px 24px 8px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.container {
+    padding: 10px 24px 20px;
+}
+
+/* Manifestation Box */
+.box {
+    background: white;
+    padding: 20px;
+    border-radius: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+    font-size: 16px;
+    resize: none;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(45deg,#a855f7,#6366f1);
+    color: white;
+    cursor: pointer;
+}
+
+/* Saved Manifestations */
+.saved-box {
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 15px;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(45deg,#f97373,#fb7185);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="header">✨ Manifestation Space</div>
+
+  <div class="container">
+
+      <!-- Write Manifestation -->
+      <div class="box">
+          <h3>Write Your Manifestation</h3>
+          <textarea id="manifestText" placeholder="I am attracting..."></textarea>
+          <button onclick="saveManifest()">Save</button>
+      </div>
+
+      <!-- Daily Affirmation -->
+      <div class="box">
+          <h3>Daily Affirmation</h3>
+          <p id="affirmation"></p>
+      </div>
+
+      <!-- Saved Manifestations -->
+      <div>
+          <h3>Saved Manifestations</h3>
+          <div id="manifestList"></div>
+      </div>
+
+  </div>
+
+</div>
+
+<script>
+let manifestations = JSON.parse(localStorage.getItem("manifestations")) || [];
+
+const affirmations = [
+    "I attract positive energy.",
+    "Everything is working in my favor.",
+    "I deserve happiness and success.",
+    "My dreams are becoming reality.",
+    "I am confident and powerful."
+];
+
+// Show random affirmation
+document.getElementById("affirmation").innerText =
+    affirmations[Math.floor(Math.random() * affirmations.length)];
+
+function saveManifest() {
+    let text = document.getElementById("manifestText").value.trim();
+    if(text === "") return;
+
+    let manifest = {
+        id: Date.now(),
+        text: text
+    };
+
+    manifestations.unshift(manifest);
+    localStorage.setItem("manifestations", JSON.stringify(manifestations));
+
+    document.getElementById("manifestText").value = "";
+    displayManifest();
+}
+
+function deleteManifest(id) {
+    manifestations = manifestations.filter(m => m.id !== id);
+    localStorage.setItem("manifestations", JSON.stringify(manifestations));
+    displayManifest();
+}
+
+function displayManifest() {
+    let container = document.getElementById("manifestList");
+    container.innerHTML = "";
+
+    manifestations.forEach(m => {
+        container.innerHTML += `
+            <div class="saved-box">
+                <button class="delete-btn" onclick="deleteManifest(${m.id})">Delete</button>
+                <p>${m.text}</p>
+            </div>
+        `;
+    });
+}
+
+displayManifest();
+</script>
+
+</body>
+</html>

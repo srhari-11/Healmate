@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us - HealMate</title>
+<link rel="stylesheet" href="contact.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="contact-container">
+    <h1>Contact Us</h1>
+    <p>We would love to hear from you! Send your message below.</p>
+
+    <div class="contact-form">
+        <form id="contactForm">
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <input type="text" name="subject" placeholder="Subject" required>
+            <textarea name="message" rows="6" placeholder="Your Message" required></textarea>
+            <button type="submit">Send Message</button>
+            <p id="formMessage" class="form-message"></p>
+        </form>
+    </div>
+</div>
+
+<script>
+  // ✅ Replace with your Supabase details
+  const supabaseUrl = "https://aesjzhjfnkmxdvivjaqy.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlc2p6aGpmbmtteGR2aXZqYXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTU5MzUsImV4cCI6MjA4Njk5MTkzNX0.ttXhdM1XU_VVQPDdtDEumawzgXqlo-JQtbT1WUO7G1E";
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  const form = document.getElementById('contactForm');
+  const formMessage = document.getElementById('formMessage');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const subject = form.subject.value.trim();
+    const message = form.message.value.trim();
+
+    if (!name || !email || !subject || !message) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .insert([{ name, email, subject, message }]);
+
+      if (error) throw error;
+
+      formMessage.textContent = "✅ Your message has been sent!";
+      formMessage.style.color = "#4CAF50";
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      formMessage.textContent = "❌ Something went wrong. Please try again!";
+      formMessage.style.color = "red";
+    }
+  });
+</script>
+
+</body>
+</html>

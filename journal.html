@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<head>
+<meta charset="UTF-8">
+<title>Journal Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:url("e.jpeg") no-repeat center center fixed;
+    background-size:cover;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px 16px;
+}
+
+/* Main Layout */
+.container{
+    width:1100px;
+    max-width:100%;
+    height:520px;
+    display:flex;
+    gap:30px;
+    background:rgba(255,255,255,0.94);
+    border-radius:32px;
+    box-shadow:0 20px 45px rgba(15,23,42,0.25);
+    padding:28px;
+}
+
+/* LEFT BIG BOX */
+.big-box{
+    flex:1.2;
+    background:rgb(141, 104, 141);
+    border-radius:28px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:26px;
+    cursor:pointer;
+    box-shadow:0 15px 35px rgba(0,0,0,0.25);
+    transition:0.3s;
+    color:#111827;
+}
+
+/* RIGHT SIDE */
+.right-column{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:30px;
+}
+
+/* RIGHT BOXES */
+.small-box{
+    flex:1;
+    background:rgb(182, 158, 192);
+    border-radius:28px;
+    padding:25px;
+    font-size:20px;
+    cursor:pointer;
+    box-shadow:0 15px 35px rgba(0,0,0,0.22);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:0.3s;
+    position:relative;
+    color:#111827;
+}
+
+.big-box:hover,
+.small-box:hover{
+    transform:translateY(-6px);
+}
+
+/* Card inside streak */
+.card{
+    display:none;
+    margin-top:15px;
+}
+
+.card img{
+    width:100%;
+    height:180px;      /* BIGGER IMAGE */
+    border-radius:20px;
+    object-fit:cover;
+}
+
+.card p{
+    margin-top:10px;
+    font-size:16px;
+    text-align:center;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LEFT -->
+    <div class="big-box" onclick="location.href='g1.html'">
+        <div style="text-align:center;">
+            <div>Journal</div>
+            <div style="margin-top:10px;font-size:18px;">
+                📅 <span id="streakDisplay">0</span> day streak
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-column">
+
+        <!-- TOP RIGHT -->
+        <div class="small-box" onclick="location.href='g2.html'">
+            📘 Manifestation
+        </div>
+
+        <!-- BOTTOM RIGHT -->
+        <div class="small-box" onclick="showCard()">
+            ..
+            <div class="card" id="card">
+                <img id="cardImage">
+                <p id="cardText"></p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const streakValue = parseInt(localStorage.getItem("journalStreak") || "0", 10);
+const streakDisplayElement = document.getElementById("streakDisplay");
+if (streakDisplayElement) {
+    streakDisplayElement.innerText = streakValue;
+}
+
+const cards = [
+    {
+        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+        text: "Taking a few minutes to reflect is an act of self-care."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+        text: "You are growing stronger with every honest entry."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+        text: "Your feelings are valid. Not every day has to be your best day."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
+        text: "Rest is productive too. Listening to your mind and body is progress."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87",
+        text: "You don’t have to fix everything today. Small steps support your mental health."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1527254059249-f2c0c4a3c1b5",
+        text: "Pausing to notice your thoughts is a powerful wellness habit."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1524492514791-5f4a3830f2c1",
+        text: "Be as kind to yourself as you would be to a close friend."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1532956841806-57cdefc8d2c2",
+        text: "It’s okay to ask for help. You are not alone in this journey."
+    }
+];
+
+function showCard(){
+    const random = Math.floor(Math.random() * cards.length);
+
+    document.getElementById("cardImage").src = cards[random].image;
+    document.getElementById("cardText").innerText = cards[random].text;
+
+    document.getElementById("card").style.display = "block";
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>W</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: url("e.jpeg") no-repeat center center fixed;
+    background-size: cover;
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 16px;
+}
+
+.page {
+    width: 1100px;
+    max-width: 100%;
+    background: linear-gradient(135deg,rgba(185, 181, 185, 0.98),rgba(179, 174, 178, 0.98));
+    border-radius: 28px;
+    box-shadow: 0 20px 45px rgba(15,23,42,0.28);
+    padding-bottom: 20px;
+}
+
+.header {
+    padding: 20px 24px 8px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.search-box {
+    margin: 0 24px 10px;
+}
+
+.search-box input {
+    width: 92%;
+    padding: 12px 16px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #111827;
+}
+
+/* Week Indicator */
+.week-box {
+    margin: 10px 24px 20px;
+    padding: 15px;
+    background: #f4eded;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+}
+
+.week-days span {
+    padding: 8px 10px;
+    border-radius: 999px;
+    margin: 0 3px;
+    opacity: 0.6;
+    font-size: 14px;
+    background: #e0e7ff;
+}
+
+.active-day {
+    background: linear-gradient(45deg,#a855f7,#6366f1);
+    color: rgb(7, 5, 5);
+    opacity: 1 !important;
+}
+
+.streak {
+    font-size: 16px;
+    color: #4b5563;
+}
+
+/* Entries */
+.entry {
+    background: #f9fafb;
+    margin: 12px 24px;
+    padding: 15px 18px;
+    border-radius: 14px;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(45deg,#f97373,#fb7185);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Floating Button */
+.write-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(45deg,#a855f7,#6366f1);
+    border: none;
+    padding: 15px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(88,28,135,0.4);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.35);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px 18px 18px;
+    width: 90%;
+    max-width: 420px;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(15,23,42,0.35);
+}
+
+.modal textarea {
+    width: 100%;
+    height: 120px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #111827;
+    font-size: 16px;
+    resize: none;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.modal button {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(45deg,#a855f7,#6366f1);
+    color: white;
+    cursor: pointer;
+    width: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="header">Gratitude Journal</div>
+
+  <div class="search-box">
+      <input type="text" id="search" placeholder="Search entries...">
+  </div>
+
+  <div class="week-box">
+      <div class="streak">🔥 <span id="streak">0</span> Streak</div>
+      <div class="week-days" id="weekDays">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+      </div>
+  </div>
+
+  <div id="entries"></div>
+
+</div>
+
+<button class="write-btn" onclick="openModal()">Write Entry</button>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h3>Write about one good thing that happened yesterday.</h3>
+        <textarea id="entryText" placeholder="Write here..."></textarea>
+        <button onclick="saveEntry()">Save Entry</button>
+    </div>
+</div>
+
+<script>
+let entries = JSON.parse(localStorage.getItem("journalEntries")) || [];
+let streak = JSON.parse(localStorage.getItem("journalStreak")) || 0;
+let lastDate = localStorage.getItem("lastEntryDate");
+
+document.getElementById("streak").innerText = streak;
+
+/* Highlight Today */
+let todayIndex = new Date().getDay();
+let weekSpans = document.querySelectorAll("#weekDays span");
+weekSpans[todayIndex].classList.add("active-day");
+
+function openModal() {
+    document.getElementById("modal").style.display = "flex";
+}
+
+function saveEntry() {
+    let text = document.getElementById("entryText").value.trim();
+    if(text === "") return;
+
+    let today = new Date();
+    let todayString = today.toDateString();
+
+    // Correct streak calculation
+    if (lastDate) {
+        let last = new Date(lastDate);
+        let diffTime = today - last;
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+            streak++;
+        } else if (diffDays === 0) {
+            // same day → no change
+        } else {
+            streak = 1;
+        }
+    } else {
+        streak = 1;
+    }
+
+    localStorage.setItem("journalStreak", streak);
+    localStorage.setItem("lastEntryDate", todayString);
+    lastDate = todayString;
+    document.getElementById("streak").innerText = streak;
+
+    let entry = {
+        id: Date.now(),
+        date: todayString,
+        text: text
+    };
+
+    entries.unshift(entry);
+    localStorage.setItem("journalEntries", JSON.stringify(entries));
+
+    document.getElementById("entryText").value = "";
+    document.getElementById("modal").style.display = "none";
+
+    displayEntries();
+}
+
+function deleteEntry(id) {
+    entries = entries.filter(e => e.id !== id);
+    localStorage.setItem("journalEntries", JSON.stringify(entries));
+    displayEntries();
+}
+
+function displayEntries() {
+    let container = document.getElementById("entries");
+    container.innerHTML = "";
+
+    entries.forEach(e => {
+        container.innerHTML += `
+        <div class="entry">
+            <button class="delete-btn" onclick="deleteEntry(${e.id})">Delete</button>
+            <strong>${e.date}</strong>
+            <p>${e.text}</p>
+        </div>
+        `;
+    });
+}
+
+document.getElementById("search").addEventListener("input", function() {
+    let value = this.value.toLowerCase();
+    let filtered = entries.filter(e => 
+        e.text.toLowerCase().includes(value)
+    );
+
+    let container = document.getElementById("entries");
+    container.innerHTML = "";
+
+    filtered.forEach(e => {
+        container.innerHTML += `
+        <div class="entry">
+            <button class="delete-btn" onclick="deleteEntry(${e.id})">Delete</button>
+            <strong>${e.date}</strong>
+            <p>${e.text}</p>
+        </div>
+        `;
+    });
+});
+
+displayEntries();
+</script>
+
+</body>
+</html>

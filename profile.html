@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HealMate - Create Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f3f0ff; padding: 40px 20px; min-height: 100vh; }
+
+        .container { max-width: 650px; margin: auto; }
+
+        .step { display: none; background: white; padding: 35px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .step.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .step-header { text-align: center; margin-bottom: 25px; }
+        .step-header h2 { color: #7b68ee; font-size: 1.5rem; }
+        .step-header p { color: #666; margin-top: 5px; font-size: 0.95rem; }
+
+        .progress-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: 0.3s; }
+        .dot.active { background: #7b68ee; transform: scale(1.2); }
+        .dot.done { background: #5cb85c; }
+
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
+        input:focus, select:focus { outline: none; border-color: #7b68ee; box-shadow: 0 0 0 2px rgba(123,104,238,0.2); }
+
+        label { display: block; margin-top: 15px; color: #333; font-weight: 500; }
+
+        .btn { background: #7b68ee; color: white; border: none; padding: 14px 28px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: 0.3s; }
+        .btn:hover { background: #6a58d4; transform: translateY(-1px); }
+        .btn:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+        .btn-block { width: 100%; margin-top: 15px; }
+
+        /* Problem Selection Cards */
+        .problem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; }
+        .problem-card { padding: 18px; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .problem-card:hover { border-color: #7b68ee; background: #f8f6ff; }
+        .problem-card.selected { border-color: #7b68ee; background: #7b68ee; color: white; }
+        .problem-card i { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+        .problem-card span { font-size: 0.9rem; font-weight: 500; }
+
+        /* Plan Section */
+        .plan-box { margin-top: 20px; }
+        .plan-section { background: #f8f6ff; padding: 18px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #7b68ee; }
+        .plan-section h4 { color: #7b68ee; margin-bottom: 10px; font-size: 1.1rem; }
+        .plan-section ul { margin-left: 18px; line-height: 1.8; color: #444; }
+        .plan-section ul li { margin: 6px 0; }
+
+        .whatsapp-btn { display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: white; padding: 14px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; margin-top: 20px; transition: 0.3s; border: none; cursor: pointer; font-size: 1rem; }
+        .whatsapp-btn:hover { background: #20bd5a; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,211,102,0.4); }
+        .whatsapp-btn i { font-size: 1.4rem; }
+
+        .back-btn { background: transparent; color: #7b68ee; border: 2px solid #7b68ee; margin-right: 10px; }
+        .back-btn:hover { background: #f8f6ff; }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-dots">
+        <span class="dot active" id="dot1"></span>
+        <span class="dot" id="dot2"></span>
+        <span class="dot" id="dot3"></span>
+    </div>
+
+    <!-- STEP 1: Profile -->
+    <div class="step active" id="step1">
+        <div class="step-header">
+            <h2>Create Your Profile</h2>
+            <p>Tell us a bit about yourself</p>
+        </div>
+
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="number" id="age" placeholder="Age" min="1" max="120" required>
+        <input type="tel" id="phone" placeholder="Phone Number (with country code for WhatsApp)" required>
+
+        <select id="gender" required>
+            <option value="">Select Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+
+        <input type="number" id="height" placeholder="Height (cm)" min="50" max="300" step="0.1" required>
+        <input type="number" id="weight" placeholder="Weight (kg)" min="20" max="500" step="0.1" required>
+
+        <button type="button" class="btn btn-block" onclick="saveProfile()">Continue to Problem Selection</button>
+    </div>
+
+    <!-- STEP 2: Problem Selection -->
+    <div class="step" id="step2">
+        <div class="step-header">
+            <h2>Select Your Concerns</h2>
+            <p>Choose the areas you'd like support with (you can select multiple)</p>
+        </div>
+
+        <div class="problem-grid" id="problemGrid">
+            <div class="problem-card" data-value="stress" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-brain"></i>
+                <span>Stress</span>
+            </div>
+            <div class="problem-card" data-value="anxiety" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-wind"></i>
+                <span>Anxiety</span>
+            </div>
+            <div class="problem-card" data-value="depression" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-cloud-rain"></i>
+                <span>Depression</span>
+            </div>
+            <div class="problem-card" data-value="sleep" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-moon"></i>
+                <span>Sleep Problems</span>
+            </div>
+            <div class="problem-card" data-value="low_energy" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-battery-quarter"></i>
+                <span>Low Energy</span>
+            </div>
+            <div class="problem-card" data-value="panic" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Panic</span>
+            </div>
+            <div class="problem-card" data-value="grief" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-heart-crack"></i>
+                <span>Grief</span>
+            </div>
+            <div class="problem-card" data-value="loneliness" onclick="toggleProblem(this)">
+                <i class="fa-solid fa-user"></i>
+                <span>Loneliness</span>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn back-btn" onclick="goToStep(1)">Back</button>
+            <button class="btn" id="continueBtn" onclick="generateAndShowPlan()" disabled>Get My Personalized Plan</button>
+        </div>
+    </div>
+
+    <!-- STEP 3: Personalized Plan -->
+    <div class="step" id="step3">
+        <div class="step-header">
+            <h2>Your Personalized Wellness Plan</h2>
+            <p>Follow these instructions to support your mental wellness</p>
+        </div>
+
+        <div class="plan-box" id="planContent"></div>
+
+       <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+Save your personal guide to your profile
+</p>
+
+<button class="btn btn-block" onclick="savePersonalGuide()">
+    Get My Personal Guide
+</button>
+
+        <div class="btn-row" style="margin-top: 25px;">
+            <button class="btn back-btn" onclick="goToStep(2)">Back to Selection</button>
+            <a href="daily.html" class="btn">Go to Daily Tasks</a>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedProblems = [];
+let generatedPlan = [];  // Array of { title, items }
+let userPhone = '';
+
+function toggleProblem(el) {
+    el.classList.toggle('selected');
+    const val = el.getAttribute('data-value');
+    if (selectedProblems.includes(val)) {
+        selectedProblems = selectedProblems.filter(p => p !== val);
+    } else {
+        selectedProblems.push(val);
+    }
+    document.getElementById('continueBtn').disabled = selectedProblems.length === 0;
+}
+
+function goToStep(stepNum) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + stepNum).classList.add('active');
+
+    document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.remove('active', 'done');
+        if (i + 1 < stepNum) d.classList.add('done');
+        else if (i + 1 === stepNum) d.classList.add('active');
+    });
+}
+
+async function saveProfile() {
+    const name = document.getElementById("name").value.trim();
+    const age = document.getElementById("age").value;
+    const gender = document.getElementById("gender").value;
+    const height = document.getElementById("height").value;
+    const weight = document.getElementById("weight").value;
+    const phoneRaw = document.getElementById("phone").value.trim();
+    userPhone = phoneRaw.replace(/\D/g, '');
+
+    if (!name || !age || !gender || !height || !weight || !phoneRaw) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    // Store in sessionStorage for use in this session (e.g. WhatsApp)
+    sessionStorage.setItem("healMateProfile", JSON.stringify({ name, age, gender, height, weight, phone: phoneRaw }));
+
+    // Navigate to selection page immediately - don't wait for Supabase
+    goToStep(2);
+
+    // Save to Supabase in background (optional - won't block the flow)
+    try {
+        if (window.supabaseClient) {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                await supabaseClient.from("profiles").upsert([{
+                    user_id: user.id,
+                    name,
+                    age,
+                    gender,
+                    height,
+                    weight,
+                    phone: phoneRaw
+                }], { onConflict: "user_id" });
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+const PLAN_CONTENT = {
+    stress: {
+        title: "Stress Management",
+        items: [
+            "Practice 10 minutes of deep breathing daily (4-7-8 technique: inhale 4s, hold 7s, exhale 8s)",
+            "Take a 5-minute break every hour during work",
+            "Set clear boundaries and learn to say no when overwhelmed",
+            "Schedule worry time: 15 min daily to write down concerns, then let go",
+            "Progressive muscle relaxation before bed"
+        ]
+    },
+    anxiety: {
+        title: "Anxiety Relief",
+        items: [
+            "5-4-3-2-1 grounding: Name 5 things you see, 4 you touch, 3 you hear, 2 you smell, 1 you taste",
+            "Limit caffeine and avoid it after 2 PM",
+            "Box breathing: 4 seconds in, 4 hold, 4 out, 4 hold – repeat 4 times",
+            "Challenge anxious thoughts: Is this thought helpful? What's the evidence?",
+            "Stay in the present – avoid 'what if' thinking about the future"
+        ]
+    },
+    depression: {
+        title: "Depression Support",
+        items: [
+            "Get 20 minutes of sunlight or outdoor walk daily",
+            "Write 3 things you're grateful for each morning",
+            "Small wins: Do one small task (e.g., make bed, shower) to build momentum",
+            "Stay connected: Reach out to one person daily, even briefly",
+            "Avoid isolation – maintain a simple routine with fixed wake/sleep times"
+        ]
+    },
+    sleep: {
+        title: "Better Sleep",
+        items: [
+            "No screens (phone, TV) 1 hour before bed",
+            "Aim to sleep before 10:30 PM for better quality",
+            "Keep bedroom cool (18–20°C) and dark",
+            "Avoid heavy meals and caffeine 4 hours before bed",
+            "Wind-down routine: read, stretch, or listen to calm music"
+        ]
+    },
+    low_energy: {
+        title: "Energy Boost",
+        items: [
+            "Drink 2L water daily – dehydration causes fatigue",
+            "Light stretching or 10-min walk in the morning",
+            "Eat small, balanced meals every 3–4 hours",
+            "Limit sugar – it causes energy crashes",
+            "Short power naps (15–20 min) if needed, before 3 PM"
+        ]
+    },
+    panic: {
+        title: "Panic Attack Management",
+        items: [
+            "During attack: Focus on slow breathing, feet on ground, name objects around you",
+            "Remind yourself: 'This will pass in 5–10 minutes'",
+            "Cold water on face or hold ice to activate dive reflex",
+            "Practice grounding daily so it's easier during an attack",
+            "Avoid avoidance – gradual exposure reduces future panic"
+        ]
+    },
+    grief: {
+        title: "Grief Support",
+        items: [
+            "Allow yourself to feel – grief has no timeline",
+            "Create a small ritual (light candle, visit a place) to honor the person",
+            "Talk to someone who listens without fixing",
+            "Journal about memories and feelings",
+            "Be gentle with yourself – rest and self-care are important"
+        ]
+    },
+    loneliness: {
+        title: "Reducing Loneliness",
+        items: [
+            "Join one group or class (online or in-person) that interests you",
+            "Reach out to one old friend this week",
+            "Volunteer – helping others reduces isolation",
+            "Limit social media – replace with real connection",
+            "Practice self-compassion – you deserve connection"
+        ]
+    }
+};
+
+async function generateAndShowPlan() {
+    if (selectedProblems.length === 0) {
+        alert("Please select at least one concern");
+        return;
+    }
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+        const plan = selectedProblems.map(p => PLAN_CONTENT[p] ? PLAN_CONTENT[p].items : []).flat();
+        await supabaseClient.from("profiles").update({
+            symptoms: selectedProblems,
+            daily_plan: plan
+        }).eq("user_id", user.id);
+    }
+
+    let html = '';
+    selectedProblems.forEach(prob => {
+        const data = PLAN_CONTENT[prob];
+        if (data) {
+            html += `<div class="plan-section">
+                <h4>${data.title}</h4>
+                <ul>${data.items.map(i => `<li>${i}</li>`).join('')}</ul>
+            </div>`;
+        }
+    });
+
+    generatedPlan = selectedProblems.map(p => PLAN_CONTENT[p] ? { title: PLAN_CONTENT[p].title, items: PLAN_CONTENT[p].items } : null).filter(Boolean);
+
+    document.getElementById('planContent').innerHTML = html;
+    goToStep(3);
+}
+async function savePersonalGuide(){
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if(!user){
+        alert("User not logged in");
+        return;
+    }
+
+    const profile = JSON.parse(sessionStorage.getItem("healMateProfile"));
+
+    const fullPlan = generatedPlan.map(p => p.items).flat();
+
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .upsert({
+            user_id: user.id,
+            name: profile.name,
+            age: profile.age,
+            gender: profile.gender,
+            height: profile.height,
+            weight: profile.weight,
+            phone: profile.phone,
+            symptoms: selectedProblems,
+            daily_plan: fullPlan
+        }, { onConflict: "user_id" });
+
+    if(error){
+        console.log("Supabase error:", error);
+        alert(error.message);
+    }else{
+        alert("Personal Guide Saved Successfully");
+    }
+}
+</script>
+
+</body>
+</html>
